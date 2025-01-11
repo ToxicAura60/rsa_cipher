@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import "package:pointycastle/export.dart";
 import "package:asn1lib/asn1lib.dart";
 
-class RSAEncryption {
+class RsaCipher {
   SecureRandom _secureRandom() {
     final secureRandom = SecureRandom('Fortuna');
     var random = Random.secure();

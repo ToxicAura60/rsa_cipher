@@ -5,15 +5,15 @@ import 'package:flutter_rsa/flutter_rsa.dart';
 
 void main() {
   // generate key
-  final keyPair = RSAEncryption().generateKeyPair();
+  final keyPair = RSACipher().generateKeyPair();
 
   // encode key to pem
-  final publicKeyPem = RSAEncryption().encodePublicKeyToPem(keyPair.publicKey);
+  final publicKeyPem = RSACipher().encodePublicKeyToPem(keyPair.publicKey);
   final privateKeyPem =
-      RSAEncryption().encodePrivateKeyToPem(keyPair.privateKey);
+      RSACipher().encodePrivateKeyToPem(keyPair.privateKey);
 
   // decode pem to key
-  final publicKey = RSAEncryption().decodePublicKeyFromPem(publicKeyPem);
-  final privateKey = RSAEncryption().decodePrivateKeyFromPem(privateKeyPem);
+  final publicKey = RSACipher().decodePublicKeyFromPem(publicKeyPem);
+  final privateKey = RSACipher().decodePrivateKeyFromPem(privateKeyPem);
 }
 ```
