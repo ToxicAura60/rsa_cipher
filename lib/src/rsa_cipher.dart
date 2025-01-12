@@ -30,7 +30,7 @@ class RsaCipher {
     return AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>(public, private);
   }
 
-  Uint8List decodePEM(String pem) {
+  Uint8List _decodePEM(String pem) {
     var startsWith = [
       "-----BEGIN PUBLIC KEY-----",
       "-----BEGIN RSA PRIVATE KEY-----",
@@ -58,8 +58,8 @@ class RsaCipher {
     return base64.decode(pem);
   }
 
-  RSAPublicKey decodePublicKeyFromPem(pemString) {
-    var publicKeyDER = decodePEM(pemString);
+  RSAPublicKey decodePublicKeyFromPem(String pemString) {
+    var publicKeyDER = _decodePEM(pemString);
     var topLevelSeq = ASN1Parser(publicKeyDER).nextObject() as ASN1Sequence;
     var publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
 
@@ -74,8 +74,8 @@ class RsaCipher {
     return rsaPublicKey;
   }
 
-  RSAPrivateKey decodePrivateKeyFromPem(pemString) {
-    final privateKeyDER = decodePEM(pemString);
+  RSAPrivateKey decodePrivateKeyFromPem(String pemString) {
+    final privateKeyDER = _decodePEM(pemString);
     var topLevelSeq = ASN1Parser(privateKeyDER).nextObject() as ASN1Sequence;
     var privateKeyOctetString = topLevelSeq.elements[2] as ASN1OctetString;
 
