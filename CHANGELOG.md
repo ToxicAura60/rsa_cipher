@@ -9,3 +9,7 @@
 ## 1.0.6
 
 - Documentation fixes.
+
+## 1.0.7
+
+- Migrated to a different repository.
