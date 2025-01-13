@@ -4,6 +4,29 @@ import 'dart:typed_data';
 import "package:pointycastle/export.dart";
 import "package:asn1lib/asn1lib.dart";
 
+enum Key {
+  publicKey(
+    '-----BEGIN PUBLIC KEY-----',
+    '-----END PUBLIC KEY-----',
+  ),
+  privateKey(
+    '-----BEGIN RSA PRIVATE KEY-----',
+    '-----END RSA PRIVATE KEY-----',
+  );
+
+  const Key(this.header, this.footer);
+
+  final String header;
+  final String footer;
+
+  static Key fromPem(String pem) {
+    return Key.values.firstWhere(
+      (key) => pem.startsWith(key.header),
+      orElse: () => throw ArgumentError('Invalid pem'),
+    );
+  }
+}
+
 class RsaCipher {
   SecureRandom _secureRandom() {
     final secureRandom = SecureRandom('Fortuna');
@@ -30,37 +53,37 @@ class RsaCipher {
     return AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>(public, private);
   }
 
-  Uint8List _decodePEM(String pem) {
-    var startsWith = [
-      "-----BEGIN PUBLIC KEY-----",
-      "-----BEGIN RSA PRIVATE KEY-----",
-    ];
-    var endsWith = [
-      "-----END PUBLIC KEY-----",
-      "-----END RSA PRIVATE KEY-----",
-    ];
-
-    for (var s in startsWith) {
-      if (pem.startsWith(s)) {
-        pem = pem.substring(s.length);
-      }
+  T keyFromPem<T extends RSAAsymmetricKey>(String pem) {
+    final key = Key.fromPem(pem);
+    final data = pem;
+    switch (key) {
+      case Key.publicKey:
+        data
+            .replaceAll(key.header, '')
+            .replaceAll(key.footer, '')
+            .replaceAll(r'\\n', '\n')
+            .trim();
+        return _publicKeyFromPem(base64.decode(data)) as T;
+      case Key.privateKey:
+        data
+            .replaceAll(key.header, '')
+            .replaceAll(key.footer, '')
+            .replaceAll(r'\\n', '\n')
+            .trim();
+        return _privateKeyFromPem(base64.decode(data)) as T;
     }
-
-    for (var s in endsWith) {
-      if (pem.endsWith(s)) {
-        pem = pem.substring(0, pem.length - s.length);
-      }
-    }
-
-    pem = pem.replaceAll('\n', '');
-    pem = pem.replaceAll('\r', '');
-
-    return base64.decode(pem);
   }
 
-  RSAPublicKey decodePublicKeyFromPem(String pemString) {
-    var publicKeyDER = _decodePEM(pemString);
-    var topLevelSeq = ASN1Parser(publicKeyDER).nextObject() as ASN1Sequence;
+  String keyToPem<T extends RSAAsymmetricKey>(T rsaKey) {
+    if (rsaKey is RSAPublicKey) {
+      return _publicKeyToPem(rsaKey);
+    } else {
+      return _privateKeyToPem(rsaKey as RSAPrivateKey);
+    }
+  }
+
+  RSAPublicKey _publicKeyFromPem(Uint8List data) {
+    var topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
     var publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
 
     ASN1Sequence publicKeySeq = ASN1Parser(publicKeyBitString.contentBytes())
@@ -74,9 +97,8 @@ class RsaCipher {
     return rsaPublicKey;
   }
 
-  RSAPrivateKey decodePrivateKeyFromPem(String pemString) {
-    final privateKeyDER = _decodePEM(pemString);
-    var topLevelSeq = ASN1Parser(privateKeyDER).nextObject() as ASN1Sequence;
+  RSAPrivateKey _privateKeyFromPem(Uint8List data) {
+    var topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
     var privateKeyOctetString = topLevelSeq.elements[2] as ASN1OctetString;
 
     var privateKeySequence = ASN1Parser(privateKeyOctetString.contentBytes())
@@ -114,7 +136,7 @@ class RsaCipher {
     return String.fromCharCodes(decryptedText);
   }
 
-  String encodePublicKeyToPem(RSAPublicKey publicKey) {
+  String _publicKeyToPem(RSAPublicKey publicKey) {
     final ASN1Sequence algorithmSequence = ASN1Sequence();
     final ASN1Object algorithm = ASN1Object.fromBytes(Uint8List.fromList(
         [0x6, 0x9, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0xd, 0x1, 0x1, 0x1]));
@@ -131,12 +153,12 @@ class RsaCipher {
     var topLevelSeq = ASN1Sequence();
     topLevelSeq.add(algorithmSequence);
     topLevelSeq.add(publicKeySeqBitString);
-    var dataBase64 = base64.encode(topLevelSeq.encodedBytes);
+    var data = base64.encode(topLevelSeq.encodedBytes);
 
-    return """-----BEGIN PUBLIC KEY-----\r\n$dataBase64\r\n-----END PUBLIC KEY-----""";
+    return "${Key.publicKey.header}\n$data\n${Key.publicKey.footer}";
   }
 
-  String encodePrivateKeyToPem(RSAPrivateKey privateKey) {
+  String _privateKeyToPem(RSAPrivateKey privateKey) {
     var algorithmSequence = ASN1Sequence();
     var algorithm = ASN1Object.fromBytes(Uint8List.fromList(
         [0x6, 0x9, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0xd, 0x1, 0x1, 0x1]));
@@ -172,8 +194,8 @@ class RsaCipher {
     topLevelSequence.add(version);
     topLevelSequence.add(algorithmSequence);
     topLevelSequence.add(publicKeySeqOctetString);
-    final dataBase64 = base64.encode(topLevelSequence.encodedBytes);
+    final data = base64.encode(topLevelSequence.encodedBytes);
 
-    return """-----BEGIN RSA PRIVATE KEY-----\r\n$dataBase64\r\n-----END RSA PRIVATE KEY-----""";
+    return "${Key.privateKey.header}\n$data\n${Key.privateKey.footer}";
   }
 }

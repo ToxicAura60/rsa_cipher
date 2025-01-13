@@ -9,3 +9,7 @@
 ## 1.0.2
 
 - Added fixes
+
+## 1.0.3
+
+- Simplified usage

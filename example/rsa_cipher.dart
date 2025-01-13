@@ -1,3 +1,4 @@
+import 'package:pointycastle/export.dart';
 import 'package:rsa_cipher/rsa_cipher.dart';
 
 void main() {
@@ -5,10 +6,10 @@ void main() {
   final keyPair = RsaCipher().generateKeyPair();
 
   // encode key to pem
-  final publicKeyPem = RsaCipher().encodePublicKeyToPem(keyPair.publicKey);
-  final privateKeyPem = RsaCipher().encodePrivateKeyToPem(keyPair.privateKey);
+  final publicKeyPem = RsaCipher().keyToPem<RSAPublicKey>(keyPair.publicKey);
+  final privateKeyPem = RsaCipher().keyToPem<RSAPrivateKey>(keyPair.privateKey);
 
   // decode pem to key
-  final publicKey = RsaCipher().decodePublicKeyFromPem(publicKeyPem);
-  final privateKey = RsaCipher().decodePrivateKeyFromPem(privateKeyPem);
+  final publicKey = RsaCipher().keyFromPem<RSAPublicKey>(publicKeyPem);
+  final privateKey = RsaCipher().keyFromPem<RSAPrivateKey>(privateKeyPem);
 }
