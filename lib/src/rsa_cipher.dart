@@ -55,21 +55,14 @@ class RsaCipher {
 
   T keyFromPem<T extends RSAAsymmetricKey>(String pem) {
     final key = Key.fromPem(pem);
-    final data = pem;
+    final data = pem
+        .replaceAll(key.header, "")
+        .replaceAll(key.footer, "")
+        .replaceAll(RegExp(r'[\r\n]|\\n'), '');
     switch (key) {
       case Key.publicKey:
-        data
-            .replaceAll(key.header, '')
-            .replaceAll(key.footer, '')
-            .replaceAll(r'\\n', '\n')
-            .trim();
         return _publicKeyFromPem(base64.decode(data)) as T;
       case Key.privateKey:
-        data
-            .replaceAll(key.header, '')
-            .replaceAll(key.footer, '')
-            .replaceAll(r'\\n', '\n')
-            .trim();
         return _privateKeyFromPem(base64.decode(data)) as T;
     }
   }

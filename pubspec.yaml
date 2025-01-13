@@ -1,6 +1,6 @@
 name: rsa_cipher
 description: RSA Encryption
-version: 1.0.3
+version: 1.0.4
 repository: https://github.com/ToxicAura60/rsa_cipher
 
 environment:
