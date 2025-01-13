@@ -4,29 +4,6 @@ import 'dart:typed_data';
 import "package:pointycastle/export.dart";
 import "package:asn1lib/asn1lib.dart";
 
-enum Key {
-  publicKey(
-    '-----BEGIN PUBLIC KEY-----',
-    '-----END PUBLIC KEY-----',
-  ),
-  privateKey(
-    '-----BEGIN RSA PRIVATE KEY-----',
-    '-----END RSA PRIVATE KEY-----',
-  );
-
-  const Key(this.header, this.footer);
-
-  final String header;
-  final String footer;
-
-  static Key fromPem(String pem) {
-    return Key.values.firstWhere(
-      (key) => pem.startsWith(key.header),
-      orElse: () => throw ArgumentError('Invalid pem'),
-    );
-  }
-}
-
 class RsaCipher {
   SecureRandom _secureRandom() {
     final secureRandom = SecureRandom('Fortuna');
@@ -54,24 +31,23 @@ class RsaCipher {
   }
 
   T keyFromPem<T extends RSAAsymmetricKey>(String pem) {
-    final key = Key.fromPem(pem);
-    final data = pem
-        .replaceAll(key.header, "")
-        .replaceAll(key.footer, "")
-        .replaceAll(RegExp(r'[\r\n]|\\n'), '');
-    switch (key) {
-      case Key.publicKey:
-        return _publicKeyFromPem(base64.decode(data)) as T;
-      case Key.privateKey:
-        return _privateKeyFromPem(base64.decode(data)) as T;
+    final data = pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), "");
+    if (pem.startsWith("-----BEGIN PUBLIC KEY-----")) {
+      return _publicKeyFromPem(base64.decode(data)) as T;
+    } else if (pem.startsWith("-----BEGIN RSA PRIVATE KEY-----")) {
+      return _privateKeyFromPem(base64.decode(data)) as T;
+    } else {
+      throw ArgumentError('Invalid key');
     }
   }
 
   String keyToPem<T extends RSAAsymmetricKey>(T rsaKey) {
     if (rsaKey is RSAPublicKey) {
       return _publicKeyToPem(rsaKey);
-    } else {
+    } else if (rsaKey is RSAPrivateKey) {
       return _privateKeyToPem(rsaKey as RSAPrivateKey);
+    } else {
+      throw ArgumentError('Invalid key');
     }
   }
 
@@ -148,7 +124,7 @@ class RsaCipher {
     topLevelSeq.add(publicKeySeqBitString);
     var data = base64.encode(topLevelSeq.encodedBytes);
 
-    return "${Key.publicKey.header}\n$data\n${Key.publicKey.footer}";
+    return "-----BEGIN PUBLIC KEY-----\n$data\n-----END PUBLIC KEY-----";
   }
 
   String _privateKeyToPem(RSAPrivateKey privateKey) {
@@ -189,6 +165,6 @@ class RsaCipher {
     topLevelSequence.add(publicKeySeqOctetString);
     final data = base64.encode(topLevelSequence.encodedBytes);
 
-    return "${Key.privateKey.header}\n$data\n${Key.privateKey.footer}";
+    return "-----BEGIN RSA PRIVATE KEY-----\n$data\n-----END RSA PRIVATE KEY-----";
   }
 }

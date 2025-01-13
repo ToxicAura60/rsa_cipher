@@ -1,3 +1,7 @@
 ## 1.0.4
 
-- simplified usage
+-- Enhanced usability
+
+## 1.0.5
+
+- Bug fixes and usability improvements
