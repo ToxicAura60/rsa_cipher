@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import "package:pointycastle/export.dart";
@@ -48,6 +49,29 @@ class RsaCipher {
       return _privateKeyToPem(rsaKey as RSAPrivateKey);
     } else {
       throw ArgumentError('Invalid key');
+    }
+  }
+
+  void savePemToFile({
+    required String filePath,
+    required String pem,
+  }) {
+    if (pem.startsWith("-----BEGIN PUBLIC KEY-----")) {
+      File(filePath).writeAsStringSync(pem);
+    } else if (pem.startsWith("-----BEGIN RSA PRIVATE KEY-----")) {
+      File(filePath).writeAsStringSync(pem);
+    } else {
+      throw ArgumentError('Invalid key');
+    }
+  }
+
+  T keyFromFile<T extends RSAAsymmetricKey>(String filePath) {
+    final file = File(filePath);
+    if (file.existsSync()) {
+      final pem = file.readAsStringSync();
+      return keyFromPem<T>(pem);
+    } else {
+      throw Exception("File not found");
     }
   }
 

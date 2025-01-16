@@ -1,6 +1,6 @@
 name: rsa_cipher
 description: RSA Encryption
-version: 1.0.7
+version: 1.0.8
 repository: https://github.com/ToxicAura60/rsa_cipher
 
 environment:
@@ -9,6 +9,7 @@ environment:
 dependencies:
   pointycastle: ^3.9.1
   asn1lib: ^1.5.8
+  path_provider: ^2.1.5
 
 dev_dependencies:
   lints: ^5.0.0

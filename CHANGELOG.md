@@ -13,3 +13,7 @@
 ## 1.0.7
 
 - Migrated to a different repository.
+
+## 1.0.8
+
+- Added functions to store and retrieve PEM from file
