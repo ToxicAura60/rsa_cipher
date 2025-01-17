@@ -44,7 +44,7 @@ class RsaCipher {
 
   String keyToPem<T extends RSAAsymmetricKey>(T rsaKey) {
     if (rsaKey is RSAPublicKey) {
-      return _publicKeyToPem(rsaKey);
+      return _publicKeyToPem(rsaKey as RSAPublicKey);
     } else if (rsaKey is RSAPrivateKey) {
       return _privateKeyToPem(rsaKey as RSAPrivateKey);
     } else {
@@ -52,26 +52,28 @@ class RsaCipher {
     }
   }
 
-  void savePemToFile({
+  void storeKeyToFile<T extends RSAAsymmetricKey>({
     required String filePath,
-    required String pem,
+    required T key,
   }) {
-    if (pem.startsWith("-----BEGIN PUBLIC KEY-----")) {
-      File(filePath).writeAsStringSync(pem);
-    } else if (pem.startsWith("-----BEGIN RSA PRIVATE KEY-----")) {
-      File(filePath).writeAsStringSync(pem);
+    String pem;
+    if (key is RSAPublicKey) {
+      pem = _publicKeyToPem(key);
+    } else if (key is RSAPrivateKey) {
+      pem = _privateKeyToPem(key);
     } else {
       throw ArgumentError('Invalid key');
     }
+    File(filePath).writeAsStringSync(pem);
   }
 
-  T keyFromFile<T extends RSAAsymmetricKey>(String filePath) {
+  T? retrieveKeyFromFile<T extends RSAAsymmetricKey>(String filePath) {
     final file = File(filePath);
     if (file.existsSync()) {
       final pem = file.readAsStringSync();
       return keyFromPem<T>(pem);
     } else {
-      throw Exception("File not found");
+      return null;
     }
   }
 

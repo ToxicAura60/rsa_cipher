@@ -17,3 +17,7 @@
 ## 1.0.8
 
 - Added functions to store and retrieve PEM from file
+
+## 1.0.9
+
+- Renamed several functions
