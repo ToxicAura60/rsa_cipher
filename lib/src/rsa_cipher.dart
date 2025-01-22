@@ -6,6 +6,8 @@ import "package:pointycastle/export.dart";
 import "package:asn1lib/asn1lib.dart";
 
 class RsaCipher {
+  // Generates a secure random number generator with Fortuna algorithm.
+  // This is used to seed the RSA key generator with strong randomness.
   SecureRandom _secureRandom() {
     final secureRandom = SecureRandom('Fortuna');
     var random = Random.secure();
@@ -17,6 +19,8 @@ class RsaCipher {
     return secureRandom;
   }
 
+  // Generates an RSA key pair (public and private keys) with a 2048-bit key size.
+  // Uses RSA key generator with the public exponent of 65537.
   AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateKeyPair() {
     var rsaParams = RSAKeyGeneratorParameters(BigInt.parse('65537'), 2048, 64);
     final paramsWithRandom = ParametersWithRandom(rsaParams, _secureRandom());
@@ -31,6 +35,8 @@ class RsaCipher {
     return AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>(public, private);
   }
 
+  // Converts a PEM-encoded key (public or private) into an RSA key object.
+  // The PEM format is stripped of headers and decoded from base64.
   T keyFromPem<T extends RSAAsymmetricKey>(String pem) {
     final data = pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), "");
     if (pem.startsWith("-----BEGIN PUBLIC KEY-----")) {
@@ -42,6 +48,8 @@ class RsaCipher {
     }
   }
 
+  // Converts an RSA key (public or private) to its PEM-encoded string representation.
+  // PEM format includes headers and base64-encoded key data.
   String keyToPem<T extends RSAAsymmetricKey>(T rsaKey) {
     if (rsaKey is RSAPublicKey) {
       return _publicKeyToPem(rsaKey as RSAPublicKey);
@@ -52,6 +60,8 @@ class RsaCipher {
     }
   }
 
+  // Stores an RSA key (public or private) to a file in PEM format.
+  // The file is written synchronously to the provided file path.
   void storeKeyToFile<T extends RSAAsymmetricKey>({
     required String filePath,
     required T key,
@@ -67,6 +77,8 @@ class RsaCipher {
     File(filePath).writeAsStringSync(pem);
   }
 
+  // Retrieves an RSA key (public or private) from a PEM file.
+  // If the file exists, it reads the PEM content, decodes it, and returns the key.
   T? retrieveKeyFromFile<T extends RSAAsymmetricKey>(String filePath) {
     final file = File(filePath);
     if (file.existsSync()) {
@@ -77,6 +89,8 @@ class RsaCipher {
     }
   }
 
+  // Decodes a PEM-encoded public key and converts it into an RSAPublicKey object.
+  // The public key is extracted and parsed from the ASN.1 structure in the PEM data.
   RSAPublicKey _publicKeyFromPem(Uint8List data) {
     var topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
     var publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
@@ -92,6 +106,8 @@ class RsaCipher {
     return rsaPublicKey;
   }
 
+  // Decodes a PEM-encoded private key and converts it into an RSAPrivateKey object.
+  // The private key is extracted and parsed from the ASN.1 structure in the PEM data.
   RSAPrivateKey _privateKeyFromPem(Uint8List data) {
     var topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
     var privateKeyOctetString = topLevelSeq.elements[2] as ASN1OctetString;
@@ -114,6 +130,8 @@ class RsaCipher {
     return rsaPrivateKey;
   }
 
+  // Encrypts plaintext using RSA public key and OAEP padding scheme.
+  // The resulting ciphertext is encoded in base64 format.
   String encrypt({required String plaintext, required RSAPublicKey publicKey}) {
     final cipher = AsymmetricBlockCipher('RSA/OAEP')
       ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
@@ -122,6 +140,8 @@ class RsaCipher {
     return base64.encode(cipherText);
   }
 
+  // Decrypts a base64-encoded ciphertext using RSA private key and OAEP padding scheme.
+  // The decrypted plaintext is returned as a string.
   String decrypt(String ciphertext, RSAPrivateKey privateKey) {
     final cipher = AsymmetricBlockCipher('RSA/OAEP')
       ..init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
@@ -131,6 +151,8 @@ class RsaCipher {
     return String.fromCharCodes(decryptedText);
   }
 
+  // Converts an RSA public key to its PEM-encoded string representation.
+  // The public key is encoded as an ASN.1 sequence and then base64-encoded.
   String _publicKeyToPem(RSAPublicKey publicKey) {
     final ASN1Sequence algorithmSequence = ASN1Sequence();
     final ASN1Object algorithm = ASN1Object.fromBytes(Uint8List.fromList(
@@ -153,6 +175,8 @@ class RsaCipher {
     return "-----BEGIN PUBLIC KEY-----\n$data\n-----END PUBLIC KEY-----";
   }
 
+  // Converts an RSA private key to its PEM-encoded string representation.
+  // The private key is encoded as an ASN.1 sequence and then base64-encoded.
   String _privateKeyToPem(RSAPrivateKey privateKey) {
     var algorithmSequence = ASN1Sequence();
     var algorithm = ASN1Object.fromBytes(Uint8List.fromList(

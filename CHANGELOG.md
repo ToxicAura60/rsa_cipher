@@ -29,3 +29,7 @@
 ## 1.1.1
 
 - Bug fixes
+
+## 1.1.2
+
+- Added code documentation

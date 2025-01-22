@@ -1,6 +1,6 @@
 name: rsa_cipher
-description: rsa_cipher is a powerful and easy-to-use package for RSA encryption and decryption in Dart. With seamless integration of the PointyCastle cryptographic library, this package allows you to securely encrypt and decrypt data using the RSA algorithm. Whether you're building a secure communication channel or handling sensitive information, rsa_cipher provides a straightforward API to manage RSA key pairs and cryptographic operations.
-version: 1.1.1
+description: rsa_cipher is a powerful and easy-to-use package for RSA encryption and decryption in Dart.
+version: 1.1.2
 repository: https://github.com/ToxicAura60/rsa_cipher
 
 environment:
