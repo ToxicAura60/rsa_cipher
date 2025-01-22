@@ -12,7 +12,7 @@ class RsaCipher {
   /// Returns a [SecureRandom] object seeded with random data.
   SecureRandom _secureRandom() {
     final secureRandom = SecureRandom('Fortuna');
-    var random = Random.secure();
+    final random = Random.secure();
     List<int> seeds = [];
     for (int i = 0; i < 32; i++) {
       seeds.add(random.nextInt(255));
@@ -27,7 +27,8 @@ class RsaCipher {
   ///
   /// Returns the generated RSA key pair, with both public and private keys.
   AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateKeyPair() {
-    var rsaParams = RSAKeyGeneratorParameters(BigInt.parse('65537'), 2048, 64);
+    final rsaParams =
+        RSAKeyGeneratorParameters(BigInt.parse('65537'), 2048, 64);
     final paramsWithRandom = ParametersWithRandom(rsaParams, _secureRandom());
 
     final keyGen = KeyGenerator('RSA');
@@ -49,9 +50,9 @@ class RsaCipher {
   T keyFromPem<T extends RSAAsymmetricKey>(String pem) {
     final data = pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), "");
     if (pem.startsWith("-----BEGIN PUBLIC KEY-----")) {
-      return _publicKeyFromPem(base64.decode(data)) as T;
+      return _publicKeyFromPem(data) as T;
     } else if (pem.startsWith("-----BEGIN RSA PRIVATE KEY-----")) {
-      return _privateKeyFromPem(base64.decode(data)) as T;
+      return _privateKeyFromPem(data) as T;
     } else {
       throw ArgumentError('Invalid key');
     }
@@ -109,13 +110,14 @@ class RsaCipher {
   }
 
   /// Decodes a PEM-encoded public key and converts it into an [RSAPublicKey] object.
-  /// The public key is extracted and parsed from the ASN.1 structure in the PEM data.
   ///
-  /// [data] The decoded byte array from the PEM-encoded public key.
-  /// Returns the corresponding [RSAPublicKey] object.
-  RSAPublicKey _publicKeyFromPem(Uint8List data) {
-    var topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
-    var publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
+  /// [pem] The PEM-encoded public key string.
+  /// Returns the [RSAPublicKey] object.
+  RSAPublicKey _publicKeyFromPem(String pem) {
+    final data = base64
+        .decode(pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), ""));
+    final topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
+    final publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
 
     ASN1Sequence publicKeySeq = ASN1Parser(publicKeyBitString.contentBytes())
         .nextObject() as ASN1Sequence;
@@ -129,11 +131,12 @@ class RsaCipher {
   }
 
   /// Decodes a PEM-encoded private key and converts it into an [RSAPrivateKey] object.
-  /// The private key is extracted and parsed from the ASN.1 structure in the PEM data.
   ///
-  /// [data] The decoded byte array from the PEM-encoded private key.
-  /// Returns the corresponding [RSAPrivateKey] object.
-  RSAPrivateKey _privateKeyFromPem(Uint8List data) {
+  /// [pem] The PEM-encoded private key string.
+  /// Returns the [RSAPrivateKey] object.
+  RSAPrivateKey _privateKeyFromPem(String pem) {
+    final data = base64
+        .decode(pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), ""));
     var topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
     var privateKeyOctetString = topLevelSeq.elements[2] as ASN1OctetString;
 
