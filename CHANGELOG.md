@@ -21,3 +21,7 @@
 ## 1.0.9
 
 - Renamed several functions
+
+## 1.1.0
+
+- Bug fixes
