@@ -1,4 +1,3 @@
-import 'package:path_provider/path_provider.dart';
 import 'package:pointycastle/export.dart';
 import 'package:rsa_cipher/rsa_cipher.dart';
 
@@ -15,15 +14,12 @@ void main() async {
   final privateKey = RsaCipher().keyFromPem<RSAPrivateKey>(privateKeyPem);
 
   // save pem to file
-  final directory = await getApplicationDocumentsDirectory();
-  RsaCipher().storeKeyToFile(
-      filePath: '${directory.path}/public_key.pem', key: publicKey);
-  RsaCipher().storeKeyToFile(
-      filePath: '${directory.path}/private_key.pem', key: privateKey);
+  RsaCipher().storeKeyToFile(filePath: '.../public_key.pem', key: publicKey);
+  RsaCipher().storeKeyToFile(filePath: '.../private_key.pem', key: privateKey);
 
   // get key from file
-  final publicKeyFromFile = RsaCipher()
-      .retrieveKeyFromFile<RSAPublicKey>('${directory.path}/public_key.pem');
-  final privateKeyFromFile = RsaCipher()
-      .retrieveKeyFromFile<RSAPrivateKey>('${directory.path}/private_key.pem');
+  final publicKeyFromFile =
+      RsaCipher().retrieveKeyFromFile<RSAPublicKey>('.../public_key.pem');
+  final privateKeyFromFile =
+      RsaCipher().retrieveKeyFromFile<RSAPrivateKey>('.../private_key.pem');
 }
