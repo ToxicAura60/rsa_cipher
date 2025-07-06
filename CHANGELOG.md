@@ -17,3 +17,7 @@
 ## 1.1.8
 
 - Updated dependencies to the latest versions.
+
+## 1.1.9
+
+- Updated dependencies to the latest versions.

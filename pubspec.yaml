@@ -1,6 +1,6 @@
 name: rsa_cipher
 description: rsa_cipher is a powerful and easy-to-use package for RSA encryption and decryption in Dart.
-version: 1.1.8
+version: 1.1.9
 repository: https://github.com/ToxicAura60/rsa_cipher
 
 environment:
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  pointycastle: ^3.9.1
+  pointycastle: ^4.0.0
   asn1lib: ^1.6.5
 
 dev_dependencies:

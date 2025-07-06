@@ -27,8 +27,11 @@ class RsaCipher {
   ///
   /// Returns the generated RSA key pair, with both public and private keys.
   AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateKeyPair() {
-    final rsaParams =
-        RSAKeyGeneratorParameters(BigInt.parse('65537'), 2048, 64);
+    final rsaParams = RSAKeyGeneratorParameters(
+      BigInt.parse('65537'),
+      2048,
+      64,
+    );
     final paramsWithRandom = ParametersWithRandom(rsaParams, _secureRandom());
 
     final keyGen = KeyGenerator('RSA');
@@ -114,18 +117,22 @@ class RsaCipher {
   /// [pem] The PEM-encoded public key string.
   /// Returns the [RSAPublicKey] object.
   RSAPublicKey _publicKeyFromPem(String pem) {
-    final data = base64
-        .decode(pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), ""));
+    final data = base64.decode(
+      pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), ""),
+    );
     final topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
     final publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
 
-    ASN1Sequence publicKeySeq = ASN1Parser(publicKeyBitString.contentBytes())
-        .nextObject() as ASN1Sequence;
+    ASN1Sequence publicKeySeq =
+        ASN1Parser(publicKeyBitString.contentBytes()).nextObject()
+            as ASN1Sequence;
     var modulus = publicKeySeq.elements[0] as ASN1Integer;
     var exponent = publicKeySeq.elements[1] as ASN1Integer;
 
-    RSAPublicKey rsaPublicKey =
-        RSAPublicKey(modulus.valueAsBigInteger, exponent.valueAsBigInteger);
+    RSAPublicKey rsaPublicKey = RSAPublicKey(
+      modulus.valueAsBigInteger,
+      exponent.valueAsBigInteger,
+    );
 
     return rsaPublicKey;
   }
@@ -135,13 +142,15 @@ class RsaCipher {
   /// [pem] The PEM-encoded private key string.
   /// Returns the [RSAPrivateKey] object.
   RSAPrivateKey _privateKeyFromPem(String pem) {
-    final data = base64
-        .decode(pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), ""));
+    final data = base64.decode(
+      pem.replaceAll(RegExp(r'(\r\n|\n|\r|\\n|-----.*?-----)'), ""),
+    );
     var topLevelSeq = ASN1Parser(data).nextObject() as ASN1Sequence;
     var privateKeyOctetString = topLevelSeq.elements[2] as ASN1OctetString;
 
-    var privateKeySequence = ASN1Parser(privateKeyOctetString.contentBytes())
-        .nextObject() as ASN1Sequence;
+    var privateKeySequence =
+        ASN1Parser(privateKeyOctetString.contentBytes()).nextObject()
+            as ASN1Sequence;
 
     var modulus = privateKeySequence.elements[1] as ASN1Integer;
     var privateExponent = privateKeySequence.elements[3] as ASN1Integer;
@@ -181,8 +190,9 @@ class RsaCipher {
   String decrypt(String ciphertext, RSAPrivateKey privateKey) {
     final cipher = AsymmetricBlockCipher('RSA/OAEP')
       ..init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
-    var decryptedText =
-        cipher.process(Uint8List.fromList(base64.decode(ciphertext)));
+    var decryptedText = cipher.process(
+      Uint8List.fromList(base64.decode(ciphertext)),
+    );
 
     return String.fromCharCodes(decryptedText);
   }
@@ -194,8 +204,21 @@ class RsaCipher {
   /// Returns the PEM-encoded string representation of the RSA public key.
   String _publicKeyToPem(RSAPublicKey publicKey) {
     final ASN1Sequence algorithmSequence = ASN1Sequence();
-    final ASN1Object algorithm = ASN1Object.fromBytes(Uint8List.fromList(
-        [0x6, 0x9, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0xd, 0x1, 0x1, 0x1]));
+    final ASN1Object algorithm = ASN1Object.fromBytes(
+      Uint8List.fromList([
+        0x6,
+        0x9,
+        0x2a,
+        0x86,
+        0x48,
+        0x86,
+        0xf7,
+        0xd,
+        0x1,
+        0x1,
+        0x1,
+      ]),
+    );
     var parameters = ASN1Object.fromBytes(Uint8List.fromList([0x5, 0x0]));
     algorithmSequence.add(algorithm);
     algorithmSequence.add(parameters);
@@ -203,8 +226,9 @@ class RsaCipher {
     var publicKeySequence = ASN1Sequence();
     publicKeySequence.add(ASN1Integer(publicKey.modulus!));
     publicKeySequence.add(ASN1Integer(publicKey.exponent!));
-    var publicKeySeqBitString =
-        ASN1BitString(Uint8List.fromList(publicKeySequence.encodedBytes));
+    var publicKeySeqBitString = ASN1BitString(
+      Uint8List.fromList(publicKeySequence.encodedBytes),
+    );
 
     var topLevelSeq = ASN1Sequence();
     topLevelSeq.add(algorithmSequence);
@@ -221,8 +245,21 @@ class RsaCipher {
   /// Returns the PEM-encoded string representation of the RSA private key.
   String _privateKeyToPem(RSAPrivateKey privateKey) {
     var algorithmSequence = ASN1Sequence();
-    var algorithm = ASN1Object.fromBytes(Uint8List.fromList(
-        [0x6, 0x9, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0xd, 0x1, 0x1, 0x1]));
+    var algorithm = ASN1Object.fromBytes(
+      Uint8List.fromList([
+        0x6,
+        0x9,
+        0x2a,
+        0x86,
+        0x48,
+        0x86,
+        0xf7,
+        0xd,
+        0x1,
+        0x1,
+        0x1,
+      ]),
+    );
     var parameters = ASN1Object.fromBytes(Uint8List.fromList([0x5, 0x0]));
     algorithmSequence.add(algorithm);
     algorithmSequence.add(parameters);
@@ -234,10 +271,12 @@ class RsaCipher {
     var privateExponent = ASN1Integer(privateKey.exponent!);
     var prime1 = ASN1Integer(privateKey.p!);
     var prime2 = ASN1Integer(privateKey.q!);
-    var exponent1 =
-        ASN1Integer(privateKey.exponent! % (privateKey.p! - BigInt.from(1)));
-    var exponent2 =
-        ASN1Integer(privateKey.exponent! % (privateKey.q! - BigInt.from(1)));
+    var exponent1 = ASN1Integer(
+      privateKey.exponent! % (privateKey.p! - BigInt.from(1)),
+    );
+    var exponent2 = ASN1Integer(
+      privateKey.exponent! % (privateKey.q! - BigInt.from(1)),
+    );
     var coefficient = ASN1Integer(privateKey.q!.modInverse(privateKey.p!));
     privateKeySequence.add(version);
     privateKeySequence.add(modulus);
@@ -248,8 +287,9 @@ class RsaCipher {
     privateKeySequence.add(exponent1);
     privateKeySequence.add(exponent2);
     privateKeySequence.add(coefficient);
-    final publicKeySeqOctetString =
-        ASN1OctetString(Uint8List.fromList(privateKeySequence.encodedBytes));
+    final publicKeySeqOctetString = ASN1OctetString(
+      Uint8List.fromList(privateKeySequence.encodedBytes),
+    );
 
     final topLevelSequence = ASN1Sequence();
     topLevelSequence.add(version);
