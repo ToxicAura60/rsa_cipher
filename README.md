@@ -25,5 +25,12 @@ void main() async {
       RsaCipher().retrieveKeyFromFile<RSAPublicKey>('.../public_key.pem');
   final privateKeyFromFile =
       RsaCipher().retrieveKeyFromFile<RSAPrivateKey>('.../private_key.pem');
+
+  // encrypt text
+  final encryptedText =
+      RsaCipher().encrypt(plaintext: "hello", publicKey: publicKey);
+
+  // decrypt text
+  final plainText = RsaCipher().decrypt(encryptedText, privateKey);
 }
 ```

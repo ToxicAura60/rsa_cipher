@@ -9,3 +9,7 @@
 ## 1.1.6
 
 - Modified example code for better clarity and demonstration of usage.
+
+## 1.1.7
+
+- Updated README for better documentation.
