@@ -13,3 +13,7 @@
 ## 1.1.7
 
 - Updated README for better documentation.
+
+## 1.1.8
+
+- Updated dependencies to the latest versions.
