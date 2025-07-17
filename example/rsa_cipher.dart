@@ -18,15 +18,22 @@ void main() async {
   RsaCipher().storeKeyToFile(filePath: '.../private_key.pem', key: privateKey);
 
   // get key from file
-  final publicKeyFromFile =
-      RsaCipher().retrieveKeyFromFile<RSAPublicKey>('.../public_key.pem');
-  final privateKeyFromFile =
-      RsaCipher().retrieveKeyFromFile<RSAPrivateKey>('.../private_key.pem');
+  final publicKeyFromFile = RsaCipher().retrieveKeyFromFile<RSAPublicKey>(
+    '.../public_key.pem',
+  );
+  final privateKeyFromFile = RsaCipher().retrieveKeyFromFile<RSAPrivateKey>(
+    '.../private_key.pem',
+  );
 
   // encrypt text
-  final encryptedText =
-      RsaCipher().encrypt(plaintext: "hello", publicKey: publicKey);
+  final cipherText = RsaCipher().encrypt(
+    plaintext: "hello",
+    publicKey: publicKey,
+  );
 
   // decrypt text
-  final plainText = RsaCipher().decrypt(encryptedText, privateKey);
+  final plainText = RsaCipher().decrypt(
+    ciphertext: cipherText,
+    privateKey: privateKey,
+  );
 }

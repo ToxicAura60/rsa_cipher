@@ -187,7 +187,10 @@ class RsaCipher {
   /// [ciphertext] The base64-encoded ciphertext to decrypt.
   /// [privateKey] The RSA private key used for decryption.
   /// Returns the decrypted plaintext as a string.
-  String decrypt(String ciphertext, RSAPrivateKey privateKey) {
+  String decrypt({
+    required String ciphertext,
+    required RSAPrivateKey privateKey,
+  }) {
     final cipher = AsymmetricBlockCipher('RSA/OAEP')
       ..init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
     var decryptedText = cipher.process(

@@ -21,3 +21,7 @@
 ## 1.1.9
 
 - Updated dependencies to the latest versions.
+
+## 1.2.0
+
+- Minor code refactor for better readability and maintainability.
