@@ -30,3 +30,8 @@
 
 - Fixed incorrect use of Random.nextInt(255), which generated values from 0 to 254.
 - Updated to Random.nextInt(256) to correctly include the full 0–255 range
+
+## 1.2.2
+
+- Users no longer need to import the `pointycastle` package directly.
+- Common models such as `PublicKey`, `PrivateKey`, and `KeyPair` are now provided and exposed by the package.
