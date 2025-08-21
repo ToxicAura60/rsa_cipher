@@ -15,7 +15,7 @@ class RsaCipher {
     final random = Random.secure();
     List<int> seeds = [];
     for (int i = 0; i < 32; i++) {
-      seeds.add(random.nextInt(255));
+      seeds.add(random.nextInt(256));
     }
     secureRandom.seed(KeyParameter(Uint8List.fromList(seeds)));
     return secureRandom;

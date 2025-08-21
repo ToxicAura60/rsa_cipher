@@ -25,3 +25,8 @@
 ## 1.2.0
 
 - Minor code refactor for better readability and maintainability.
+
+## 1.2.1
+
+- Fixed incorrect use of Random.nextInt(255), which generated values from 0 to 254.
+- Updated to Random.nextInt(256) to correctly include the full 0–255 range
